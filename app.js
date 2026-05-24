@@ -243,24 +243,40 @@ const contactForm = document.getElementById('contact-form');
 const formSuccess = document.getElementById('form-success');
 
 if (contactForm) {
-  contactForm.addEventListener('submit', (e) => {
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const btn = contactForm.querySelector('button[type="submit"]');
     btn.textContent = 'Sending...';
     btn.disabled = true;
 
-    // Simulate async send — replace with real fetch() to your backend / Formspree
-    setTimeout(() => {
+    try {
+      const formData = new FormData(contactForm);
+      formData.append("access_key", "34671a20-83f5-4e0d-b1b8-38e243ddb86a");
+
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        formSuccess.classList.remove('hidden');
+        contactForm.reset();
+        setTimeout(() => {
+          formSuccess.classList.add('hidden');
+        }, 5000);
+      } else {
+        alert("Error: " + data.message);
+      }
+
+    } catch (error) {
+      alert("Something went wrong. Please try again.");
+    } finally {
       btn.textContent = 'Send Message 🚀';
       btn.disabled = false;
-      formSuccess.classList.remove('hidden');
-      contactForm.reset();
-
-      setTimeout(() => {
-        formSuccess.classList.add('hidden');
-      }, 5000);
-    }, 1400);
+    }
   });
 }
 
